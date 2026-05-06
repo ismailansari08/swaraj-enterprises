@@ -1,149 +1,266 @@
-import { useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { gsap } from 'gsap'
-import { Phone, ArrowRight, CheckCircle } from 'lucide-react'
-import GradientText from '../Common/GradientText'
-import { TRUST_BADGES, CONTACT_INFO } from '../../utils/constants'
+import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import gsap from 'gsap';
+import { ArrowRight, ShieldCheck, Clock, FileText, CheckCircle, Star } from 'lucide-react';
 
+/* ─── Image sequence config ─────────────────────────────────────────────── */
+const TOTAL_FRAMES = 107;
+const FRAME_INTERVAL_MS = 80; // ~12.5 fps → smooth playback
+const BASE_PATH = '/hero animation/4cf5228c58afd23b2c2ca1266988fe8f (online-video-cutter.com)_';
+
+const getFrameSrc = (i) =>
+  encodeURI(`${BASE_PATH}${String(i).padStart(3, '0')}.jpg`);
+
+/* ─── Component ─────────────────────────────────────────────────────────── */
 const Hero = () => {
-  const heroRef = useRef(null)
+  const containerRef = useRef(null);
+  const frameRef = useRef(0);
+  const intervalRef = useRef(null);
+  const loadedFramesRef = useRef(0);
+  const totalLoadedRef = useRef(0);
 
+  // Two canvas layers for crossfade — avoids React re-render on every frame
+  const imgARef = useRef(null);
+  const imgBRef = useRef(null);
+  const activeLayerRef = useRef('a'); // which img is currently visible
+
+  /* ── Preload + sequence playback ─────────────────────────────────────── */
+  useEffect(() => {
+    let preloadPromises = [];
+    
+    // Preload all frames with promises
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      const promise = new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => {
+          loadedFramesRef.current++;
+          totalLoadedRef.current++;
+          console.log(`Loaded frame ${i}/${TOTAL_FRAMES} (${Math.round((loadedFramesRef.current / TOTAL_FRAMES)*100)}%)`);
+          resolve(img);
+        };
+        img.onerror = (e) => {
+          console.error(`Failed to load frame ${i}:`, getFrameSrc(i), e);
+          totalLoadedRef.current++;
+          resolve(null); // continue even if failed
+        };
+        img.src = getFrameSrc(i);
+        preloadPromises.push(promise);
+      });
+    }
+
+    const advanceFrame = () => {
+      frameRef.current = (frameRef.current + 1) % TOTAL_FRAMES;
+      console.log('Advancing to frame:', frameRef.current);
+      const src = getFrameSrc(frameRef.current);
+      const next = activeLayerRef.current === 'a' ? imgBRef.current : imgARef.current;
+      const curr = activeLayerRef.current === 'a' ? imgARef.current : imgBRef.current;
+
+      if (!next || !curr) return;
+
+      next.src = src;
+      next.style.opacity = '1';
+      curr.style.opacity = '0';
+      activeLayerRef.current = activeLayerRef.current === 'a' ? 'b' : 'a';
+    };
+
+    // Set initial frame after mount
+    if (imgARef.current) imgARef.current.src = getFrameSrc(0);
+
+    // Start animation after preloads (or partial)
+    const startAnimation = async () => {
+      await Promise.all(preloadPromises);
+      console.log(`Preload complete: ${totalLoadedRef.current}/${TOTAL_FRAMES} frames loaded. Starting animation.`);
+      intervalRef.current = setInterval(advanceFrame, FRAME_INTERVAL_MS);
+    };
+    startAnimation();
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  /* ── GSAP entrance animations ────────────────────────────────────────── */
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.hero-reveal', 
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.1, duration: 1, ease: 'power4.out', delay: 0.3 }
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      tl.fromTo('.hero-badge',
+        { y: 24, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.75, delay: 0.3 }
       )
-      gsap.fromTo('.hero-card', 
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.15, duration: 0.8, ease: 'back.out(1)', delay: 0.6 }
+      .fromTo('.hero-word',
+        { y: 55, opacity: 0, rotateX: -25 },
+        { y: 0, opacity: 1, rotateX: 0, duration: 0.85, stagger: 0.1 },
+        '-=0.4'
       )
-    }, heroRef)
-    return () => ctx.revert()
-  }, [])
+      .fromTo('.hero-sub',
+        { y: 28, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.75 },
+        '-=0.45'
+      )
+      .fromTo('.hero-cta',
+        { y: 28, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.75 },
+        '-=0.55'
+      )
+      .fromTo('.hero-stat',
+        { y: 30, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.12 },
+        '-=0.5'
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const stats = [
+    { value: '99%', label: 'Approval Rate' },
+    { value: '29+', label: 'Services' },
+    { value: '10+', label: 'Years Exp.' },
+    { value: '5K+', label: 'Businesses' },
+  ];
+
+  const pills = [
+    { icon: <ShieldCheck size={15} />, text: '100% Secure' },
+    { icon: <Clock size={15} />, text: 'Fast Processing' },
+    { icon: <FileText size={15} />, text: 'Expert Drafting' },
+    { icon: <CheckCircle size={15} />, text: 'High Success Rate' },
+  ];
 
   return (
-    <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-[#0B1120] via-[#162744] to-navy-dark">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(201,160,61,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(201,160,61,0.03)_1px,transparent_1px)] bg-[size:60px_60px] animate-grid" />
-        <div className="absolute top-20 left-[15%] w-72 h-72 bg-gold/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-32 right-[10%] w-96 h-96 bg-navy/40 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-[5%] w-32 h-32 bg-gold/10 rounded-full blur-2xl animate-pulse" />
-      </div>
+    <div
+      ref={containerRef}
+      className="relative min-h-screen flex items-end pb-20 pt-24 overflow-hidden"
+    >
+      {/* ── Image sequence – two layers crossfade ── */}
+      <img
+        ref={imgARef}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+        style={{ opacity: 1, transition: `opacity ${FRAME_INTERVAL_MS * 1.5}ms ease-in-out`, zIndex: 0 }}
+      />
+      <img
+        ref={imgBRef}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+        style={{ opacity: 0, transition: `opacity ${FRAME_INTERVAL_MS * 1.5}ms ease-in-out`, zIndex: 0 }}
+      />
 
-      <div className="container mx-auto px-4 relative z-10 py-20 md:py-28">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left Column */}
-          <div className="max-w-2xl">
-            <div className="hero-reveal opacity-0">
-              <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-gold/20 to-gold/5 text-gold border border-gold/25 mb-6">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span>
-                </span>
-                Established Legal Consultancy — Bhiwandi
+      {/* ── Layered overlays for readability ── */}
+      {/* Dark base overlay */}
+      <div className="absolute inset-0 bg-black/20 pointer-events-none" style={{ zIndex: 1 }} />
+      {/* Dark bottom gradient */}
+      <div
+        className="absolute inset-x-0 bottom-0 pointer-events-none"
+        style={{
+          zIndex: 2,
+          height: '85%',
+          background: 'linear-gradient(to top, rgba(2,6,23,0.95) 0%, rgba(2,6,23,0.8) 40%, transparent 85%)',
+        }}
+      />
+
+      {/* Top subtle brand colour bloom */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 2,
+          background:
+            'radial-gradient(ellipse 70% 50% at 20% 0%, rgba(255,94,108,0.18) 0%, transparent 60%),' +
+            'radial-gradient(ellipse 50% 40% at 80% 100%, rgba(254,179,0,0.12) 0%, transparent 60%)',
+        }}
+      />
+
+      {/* ── Floating colour orbs ── */}
+      <div className="absolute left-[-4rem] top-20 h-56 w-56 rounded-full bg-brandPrimary/20 blur-3xl floating-orb pointer-events-none" style={{ zIndex: 3 }} />
+      <div className="absolute right-[-3rem] top-36 h-48 w-48 rounded-full bg-brandSecondary/15 blur-3xl floating-orb floating-orb-delayed pointer-events-none" style={{ zIndex: 3 }} />
+      <div className="absolute left-1/2 bottom-32 h-36 w-36 -translate-x-1/2 rounded-full bg-brandAccent/15 blur-3xl floating-orb pointer-events-none" style={{ zIndex: 3 }} />
+
+      {/* ── Content ── */}
+      <div className="container mx-auto px-6 lg:px-16 relative" style={{ zIndex: 10 }}>
+        <div className="max-w-5xl mx-auto flex flex-col items-center text-center gap-8">
+
+          {/* Badge */}
+          <div className="hero-badge inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium text-brandAccent border border-brandAccent/30 bg-brandAccent/10 backdrop-blur-sm shadow-[0_0_30px_rgba(255,170,171,0.15)]">
+            <Star size={13} className="fill-brandAccent" />
+            Trusted by 5,000+ businesses across Maharashtra
+            <span className="h-2 w-2 rounded-full bg-brandAccent animate-pulse ml-1" />
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-heading font-extrabold tracking-tight leading-[1.08]">
+          <span className="hero-word block text-white drop-shadow-[0_4px_32px_rgba(0,0,0,0.8)]">
+              Legal services that
+            </span>
+            <span className="hero-word block text-gradient drop-shadow-[0_4px_40px_rgba(255,94,108,0.4)]">
+              protect &amp; accelerate
+            </span>
+            <span className="hero-word block text-white drop-shadow-[0_4px_32px_rgba(0,0,0,0.8)]">
+              your business.
+            </span>
+
+          </h1>
+
+          {/* Sub-headline */}
+          <p className="hero-sub max-w-2xl text-lg md:text-xl text-slate-700 leading-relaxed font-light">
+            From GST registration to property deeds and compliance — we handle every legal step with{' '}
+            <span className="text-brandPrimary font-medium">transparent pricing</span>,{' '}
+            <span className="text-brandAccent font-medium">fast turnaround</span>, and{' '}
+            <span className="text-brandSecondary font-medium">expert guidance</span>.
+          </p>
+
+          {/* Feature pills */}
+          <div className="hero-sub flex flex-wrap justify-center gap-3">
+            {pills.map((p, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/8 backdrop-blur-sm px-4 py-1.5 text-sm text-slate-200"
+              >
+                <span className="text-brandPrimary">{p.icon}</span>
+                {p.text}
               </span>
-            </div>
-
-            <h1 className="hero-reveal opacity-0 font-syne font-extrabold text-5xl md:text-6xl lg:text-7xl text-white leading-[1.1] tracking-tight">
-              Swaraj <br/>
-              <span className="text-gold">Enterprises</span>
-            </h1>
-            <p className="hero-reveal opacity-0 text-xl md:text-2xl text-white/60 mt-3 font-light tracking-wide">
-              &amp; Legal Solutions
-            </p>
-
-            <div className="hero-reveal opacity-0 flex flex-wrap gap-3 my-7">
-              {TRUST_BADGES.map((badge, idx) => (
-                <div key={idx} className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 hover:border-gold/30 transition-colors duration-300">
-                  <CheckCircle size={14} className="text-gold shrink-0" />
-                  <span className="text-white/80 text-xs font-semibold">{badge.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <p className="hero-reveal opacity-0 text-white/50 text-lg max-w-lg leading-relaxed mb-8">
-              Your trusted partner for all Legal, Business Registration, and Online Documentation needs in Bhiwandi &amp; Thane region.
-            </p>
-
-            <div className="hero-reveal opacity-0 flex flex-col sm:flex-row gap-4">
-              <Link to="/appointment" className="group bg-gradient-to-r from-gold to-[#d4af37] text-navy px-8 py-4 rounded-2xl font-bold text-center hover:shadow-xl hover:shadow-gold/20 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
-                <Phone size={18} />
-                Call Now
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link to="/services" className="border-2 border-white/20 text-white px-8 py-4 rounded-2xl font-bold text-center hover:bg-white/10 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
-                Our Services
-              </Link>
-            </div>
-
-            <div className="hero-reveal opacity-0 flex flex-wrap gap-3 mt-10 items-center">
-              <span className="text-white/40 text-sm">Popular:</span>
-              {['GST Registration', 'Property', 'ITR Filing', 'PAN Card'].map((s, i) => (
-                <Link key={i} to="/services" className="text-xs bg-white/5 border border-white/10 text-white/70 px-3 py-1.5 rounded-lg hover:bg-gold/10 hover:text-gold hover:border-gold/30 transition-all">
-                  {s}
-                </Link>
-              ))}
-            </div>
+            ))}
           </div>
 
-          {/* Right Column */}
-          <div className="relative">
-            <div className="hero-card opacity-0 relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl hover:border-gold/20 transition-colors duration-500">
-              <div className="absolute -top-6 -right-6 w-16 h-16 bg-gold rounded-2xl flex items-center justify-center shadow-lg rotate-6 hover:rotate-12 transition-transform duration-300">
-                <CheckCircle size={28} className="text-navy-dark" />
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-gold text-xs font-bold uppercase tracking-widest mb-1">Experience</p>
-                  <p className="text-white text-3xl font-black">10+ Years</p>
-                  <p className="text-white/50 text-sm">Serving Bhiwandi &amp; Thane region</p>
-                </div>
-                <div className="h-px bg-gradient-to-r from-gold/30 via-white/10 to-transparent" />
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-white text-2xl font-black">5000+</p>
-                    <p className="text-white/50 text-xs">Happy Clients</p>
-                  </div>
-                  <div>
-                    <p className="text-white text-2xl font-black">29+</p>
-                    <p className="text-white/50 text-xs">Services</p>
-                  </div>
-                </div>
-                <div className="h-px bg-gradient-to-r from-gold/30 via-white/10 to-transparent" />
-                <div>
-                  <p className="text-white text-sm font-semibold mb-3">⚡ Quick Services</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['GST', 'ITR', 'Property', 'PAN', 'Passport', 'Legal'].map((tag) => (
-                      <span key={tag} className="bg-white/10 hover:bg-gold/20 px-3 py-1.5 rounded-lg text-xs text-gold transition-colors cursor-default">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="hero-card opacity-0 absolute -bottom-6 -left-4 bg-navy-dark/90 backdrop-blur-xl border border-gold/20 rounded-2xl p-5 shadow-xl max-w-[180px]">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-green-400 text-xs font-bold">Available Now</span>
-              </div>
-              <p className="text-white text-sm font-semibold">Mon - Sat: 9AM - 7PM</p>
-              <p className="text-white/50 text-xs mt-1">Sunday: Closed</p>
-            </div>
+          {/* CTAs */}
+          <div className="hero-cta flex flex-wrap gap-4 justify-center">
+            <Link
+              to="/services"
+              className="btn-premium inline-flex items-center gap-2 px-9 py-4 text-base group font-semibold"
+            >
+              Explore Services
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-2" />
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300/70 bg-white/90 backdrop-blur-sm px-9 py-4 text-base font-semibold text-slate-950 transition-all duration-300 hover:bg-white hover:border-brandPrimary/40 hover:shadow-[0_0_24px_rgba(255,94,108,0.12)]"
+            >
+              Free Consultation
+            </Link>
           </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-3xl hero-cta">
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                className="hero-stat rounded-2xl border border-white/10 bg-white/6 backdrop-blur-md px-6 py-5 flex flex-col items-center gap-1 transition-all duration-300 hover:bg-white/10 hover:border-brandPrimary/30 hover:shadow-[0_0_20px_rgba(255,94,108,0.12)]"
+              >
+                <p className="text-3xl md:text-4xl font-heading font-extrabold text-gradient leading-none">
+                  {s.value}
+                </p>
+                <p className="text-xs uppercase tracking-widest text-slate-600 font-medium mt-1">
+                  {s.label}
+                </p>
+              </div>
+            ))}
+          </div>
+
         </div>
       </div>
+    </div>
+  );
+};
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-        <span className="text-white/30 text-xs uppercase tracking-widest">Scroll</span>
-        <div className="w-6 h-10 border-2 border-white/20 rounded-full flex justify-center pt-2">
-          <div className="w-1 h-2 bg-gold rounded-full animate-bounce" />
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export default Hero
+export default Hero;

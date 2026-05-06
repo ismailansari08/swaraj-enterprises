@@ -1,46 +1,38 @@
-export const formatPhoneNumber = (phone) => {
-  const cleaned = phone.replace(/\D/g, '')
-  if (cleaned.length === 10) {
-    return `+91${cleaned}`
-  }
-  return phone
-}
+import { CONTACT_INFO } from './data';
 
-export const sendWhatsAppMessage = (phone, message) => {
-  const formattedPhone = formatPhoneNumber(phone)
-  const encodedMessage = encodeURIComponent(message)
-  window.open(`https://wa.me/${formattedPhone}?text=${encodedMessage}`, '_blank')
-}
+export const generateWhatsAppLink = (message) => {
+  const encodedMessage = encodeURIComponent(message);
+  return `https://wa.me/91${CONTACT_INFO.primaryPhone}?text=${encodedMessage}`;
+};
 
-export const trackEvent = (category, action, label) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', action, {
-      event_category: category,
-      event_label: label
-    })
+export const sanitizeHtml = (html) => {
+  if (typeof window === 'undefined' || !html) {
+    return '';
   }
-}
 
-export const debounce = (func, wait) => {
-  let timeout
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout)
-      func(...args)
-    }
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
-}
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const blockedTags = ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta'];
 
-export const smoothScrollTo = (elementId, offset = 80) => {
-  const element = document.querySelector(elementId)
-  if (element) {
-    const elementPosition = element.getBoundingClientRect().top
-    const offsetPosition = elementPosition + window.pageYOffset - offset
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: 'smooth'
-    })
-  }
-}
+  blockedTags.forEach((tag) => {
+    doc.querySelectorAll(tag).forEach((node) => node.remove());
+  });
+
+  const sanitizeNode = (node) => {
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+    [...node.attributes].forEach((attr) => {
+      const name = attr.name.toLowerCase();
+      const value = attr.value.trim().toLowerCase();
+
+      if (name.startsWith('on') || name === 'style' || (name === 'href' && value.startsWith('javascript:'))) {
+        node.removeAttribute(attr.name);
+      }
+    });
+
+    node.childNodes.forEach(sanitizeNode);
+  };
+
+  sanitizeNode(doc.body);
+  return doc.body.innerHTML;
+};

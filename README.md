@@ -1,89 +1,16 @@
-# Swaraj Enterprises & Legal Solutions
+# React + Vite
 
-A professional consultancy website built with React, Tailwind CSS, and Vite.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- **Legal Services**: Property registration, land records, court advocacy
-- **Business Services**: GST, ITR, company registration, licenses
-- **Digital Services**: PAN card, passport, government portals
-- **Contact Form**: Professional inquiry form
-- **Responsive Design**: Mobile-friendly interface
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Tech Stack
+## React Compiler
 
-- React 18
-- Vite
-- Tailwind CSS
-- Lucide React Icons
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Setup Instructions
+## Expanding the ESLint configuration
 
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-
-### Installation
-
-1. Navigate to the project directory:
-   
-```
-bash
-   cd swaraj-enterprises
-   
-```
-
-2. Install dependencies:
-   
-```
-bash
-   npm install
-   
-```
-
-3. Start the development server:
-   
-```
-bash
-   npm run dev
-   
-```
-
-4. Open your browser and visit: `http://localhost:5173`
-
-### Building for Production
-
-```
-bash
-npm run build
-```
-
-The built files will be in the `dist` folder.
-
-## Project Structure
-
-```
-swaraj-enterprises/
-├── index.html
-├── package.json
-├── vite.config.js
-├── tailwind.config.js
-├── postcss.config.js
-├── src/
-│   ├── main.jsx
-│   ├── App.jsx
-│   └── index.css
-└── README.md
-```
-
-## Customization
-
-- Update contact information in `src/App.jsx`
-- Replace placeholder phone numbers and email
-- Update Google Maps embed URL
-- Modify service categories as needed
-
-## License
-
-All Rights Reserved © Swaraj Enterprises
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

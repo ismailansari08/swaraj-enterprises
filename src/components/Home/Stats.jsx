@@ -1,137 +1,110 @@
-import { useRef, useEffect, useState } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Clock, Users, Briefcase, TrendingUp } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react';
+import { Users, ShieldCheck, Briefcase, Clock4, TrendingUp, Award } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger)
+const statItems = [
+  { label: 'Happy Clients',    end: 5000,  suffix: '+', icon: Users,       color: '#ffaaab', glow: 'rgba(255,170,171,0.25)' },
+  { label: 'Cases Resolved',   end: 1200,  suffix: '+', icon: ShieldCheck,  color: '#ff5e6c', glow: 'rgba(255,94,108,0.25)' },
+  { label: 'Expert Advisors',  end: 50,    suffix: '+', icon: Briefcase,    color: '#feb300', glow: 'rgba(254,179,0,0.25)' },
+  { label: 'Services Offered', end: 29,    suffix: '+', icon: Award,        color: '#fff5d7', glow: 'rgba(255,245,215,0.25)' },
+  { label: 'Years Experience', end: 10,    suffix: '+', icon: Clock4,       color: '#ffb3c0', glow: 'rgba(255,179,192,0.25)' },
+  { label: 'Success Rate',     end: 99,    suffix: '%', icon: TrendingUp,   color: '#ff7b8a', glow: 'rgba(255,123,138,0.25)' },
+];
 
-const iconMap = {
-  'Years Exp.': Clock,
-  'Happy Clients': Users,
-  'Services': Briefcase,
-  'Success Rate': TrendingUp,
-}
+const useCountUp = (end, duration = 2200, start = false) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime = null;
+    const step = (ts) => {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(ease * end));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [end, duration, start]);
+  return count;
+};
 
-const StatItem = ({ target, label, suffix = '' }) => {
-  const [count, setCount] = useState(0)
-  const [hasAnimated, setHasAnimated] = useState(false)
-  const elementRef = useRef(null)
-  const rafRef = useRef(null)
-  const Icon = iconMap[label] || Briefcase
+const StatCard = ({ item, started }) => {
+  const count = useCountUp(item.end, 2000, started);
+  const Icon = item.icon;
+
+  return (
+    <div
+      className="group relative flex flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-white/8 bg-white/[0.04] p-8 text-center backdrop-blur-sm overflow-hidden transition-all duration-500 hover:-translate-y-2"
+      style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.28)' }}
+    >
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[1.75rem]"
+        style={{ background: `radial-gradient(circle at center, ${item.glow} 0%, transparent 70%)` }}
+      />
+      <div
+        className="relative flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110"
+        style={{ background: `${item.color}18`, border: `1px solid ${item.color}30` }}
+      >
+        <Icon size={24} style={{ color: item.color }} />
+      </div>
+      <div className="relative">
+        <p
+          className="text-5xl font-heading font-extrabold leading-none"
+          style={{
+            background: `linear-gradient(135deg, ${item.color}, white)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          {count}{item.suffix}
+        </p>
+      </div>
+      <p className="text-xs font-semibold uppercase tracking-widest text-slate-300">
+        {item.label}
+      </p>
+      <div
+        className="absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"
+        style={{ background: `linear-gradient(90deg, ${item.color}, transparent)` }}
+      />
+    </div>
+  );
+};
+
+const Stats = () => {
+  const ref = useRef(null);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true)
-          const duration = 2000
-          const startTime = performance.now()
-
-          const animate = (currentTime) => {
-            const elapsed = currentTime - startTime
-            const progress = Math.min(elapsed / duration, 1)
-            // easeOutQuart
-            const eased = 1 - Math.pow(1 - progress, 4)
-            const current = Math.floor(eased * target)
-            setCount(current)
-
-            if (progress < 1) {
-              rafRef.current = requestAnimationFrame(animate)
-            } else {
-              setCount(target)
-            }
-          }
-
-          rafRef.current = requestAnimationFrame(animate)
-          observer.disconnect()
-        }
-      },
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); observer.disconnect(); } },
       { threshold: 0.3 }
-    )
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current)
-    }
-
-    return () => {
-      observer.disconnect()
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
-  }, [target, hasAnimated])
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div ref={elementRef} className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl border border-gold/10 hover:border-gold/30 transition-all duration-500 text-center">
-      <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="relative z-10">
-        <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-navy/5 flex items-center justify-center group-hover:bg-navy group-hover:scale-110 transition-all duration-300">
-          <Icon className="w-6 h-6 text-navy group-hover:text-gold transition-colors duration-300" />
-        </div>
-        <div className="font-syne text-3xl md:text-4xl font-extrabold gradient-text">
-          {count.toLocaleString()}{suffix}
-        </div>
-        <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mt-2">{label}</p>
-      </div>
-    </div>
-  )
-}
-
-const Stats = () => {
-  const sectionRef = useRef(null)
-
-  const stats = [
-    { target: 12, label: 'Years Exp.', suffix: '+ Yrs' },
-    { target: 5200, label: 'Happy Clients', suffix: '+' },
-    { target: 55, label: 'Services', suffix: '+' },
-    { target: 99, label: 'Success Rate', suffix: '%' }
-  ]
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo('.stat-card',
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      )
-    }, sectionRef)
-    return () => ctx.revert()
-  }, [])
-
-  return (
-    <section ref={sectionRef} className="py-20 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <div className="w-10 h-0.5 bg-gold" />
-            <span className="text-gold text-xs font-bold uppercase tracking-wider">Our Impact</span>
-            <div className="w-10 h-0.5 bg-gold" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-navy">
-            Numbers That <span className="gradient-text">Speak</span>
+    <section ref={ref} className="py-24 relative overflow-hidden">
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-brandPrimary/30 to-transparent pointer-events-none" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-brandPrimary/6 blur-3xl pointer-events-none" />
+      <div className="container mx-auto px-6 lg:px-12 relative z-10">
+        <div className="text-center mb-14">
+          <span className="section-label">By the numbers</span>
+          <h2 className="mt-5 text-4xl md:text-5xl font-heading font-extrabold text-slate-100">
+            Trusted across <span className="text-gradient">Maharashtra</span>
           </h2>
+          <p className="mt-3 text-slate-400 max-w-xl mx-auto">
+            Over a decade of reliable legal and business services — these numbers speak for themselves.
+          </p>
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="stat-card opacity-0">
-              <StatItem target={stat.target} label={stat.label} suffix={stat.suffix} />
-            </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {statItems.map((item) => (
+            <StatCard key={item.label} item={item} started={started} />
           ))}
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Stats
+export default Stats;
+

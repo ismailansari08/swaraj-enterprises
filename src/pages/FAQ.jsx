@@ -1,145 +1,100 @@
-import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { ChevronDown, Search } from 'lucide-react'
-import { FAQS, CONTACT_INFO } from '../utils/constants'
-import { sendWhatsAppMessage } from '../utils/helpers'
+import { useEffect, useState } from 'react';
+import { Plus, Minus, Search } from 'lucide-react';
+import { FAQS } from '../utils/data';
+
+const CATS = ['All', 'property', 'gst', 'itr', 'legal', 'documents', 'digital'];
+const CAT_LABELS = { All: 'All', property: 'Property', gst: 'GST', itr: 'Income Tax', legal: 'Legal', documents: 'Documents', digital: 'Digital' };
+
+const FAQItem = ({ question, answer, idx }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${open ? 'border-brandPrimary/30 bg-white/[0.06]' : 'border-white/8 bg-white/[0.03] hover:bg-white/[0.05]'}`}>
+      <button
+        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left focus:outline-none group"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+      >
+        <span className={`flex items-center gap-3 text-base font-medium leading-snug transition-colors ${open ? 'text-brandPrimary' : 'text-slate-900 group-hover:text-slate-700'}`}>
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold" style={{ background: open ? 'rgba(255,94,108,0.15)' : 'rgba(255,255,255,0.06)', color: open ? '#ff5e6c' : '#94a3b8' }}>
+            {idx + 1}
+          </span>
+          {question}
+        </span>
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${open ? 'border-brandPrimary/40 bg-brandPrimary/15 text-brandPrimary rotate-0' : 'border-white/10 bg-white/5 text-slate-400'}`}>
+          {open ? <Minus size={14} /> : <Plus size={14} />}
+        </span>
+      </button>
+      <div className={`overflow-hidden transition-all duration-400 ${open ? 'max-h-64' : 'max-h-0'}`}>
+        <p className="px-6 pb-6 text-slate-600 leading-relaxed text-sm">{answer}</p>
+      </div>
+    </div>
+  );
+};
 
 const FAQ = () => {
-  const [search, setSearch] = useState('')
-  const [activeCat, setActiveCat] = useState('all')
-  const [openItems, setOpenItems] = useState({})
+  const [cat, setCat] = useState('All');
+  const [query, setQuery] = useState('');
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  const categories = [
-    { id: 'all', label: 'All', icon: '📌' },
-    { id: 'property', label: '🏠 Property', icon: '🏠' },
-    { id: 'gst', label: '📊 GST', icon: '📊' },
-    { id: 'itr', label: '💰 ITR', icon: '💰' },
-    { id: 'legal', label: '⚖️ Legal', icon: '⚖️' }
-  ]
-
-  const toggleItem = (index) => {
-    setOpenItems(prev => ({ ...prev, [index]: !prev[index] }))
-  }
-
-  const filteredFaqs = FAQS.filter(faq => {
-    const matchesCat = activeCat === 'all' || faq.cat === activeCat
-    const matchesSearch = search === '' || 
-      faq.q.toLowerCase().includes(search.toLowerCase()) ||
-      faq.a.toLowerCase().includes(search.toLowerCase())
-    return matchesCat && matchesSearch
-  })
+  const filtered = FAQS.filter(f =>
+    (cat === 'All' || f.cat === cat) &&
+    (f.q.toLowerCase().includes(query.toLowerCase()) || f.a.toLowerCase().includes(query.toLowerCase()))
+  );
 
   return (
-    <>
-      <Helmet>
-        <title>FAQ | Swaraj Enterprises - Common Questions Answered | Bhiwandi</title>
-        <meta name="description" content="Frequently asked questions about legal services, GST, ITR, property registration in Bhiwandi." />
-      </Helmet>
-
-      {/* Hero */}
-      <section className="pt-24 pb-12 px-4 text-center bg-gradient-to-br from-navy-dark to-navy">
-        <div className="max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 bg-gold/15 text-gold border border-gold/30">
-            ❓ Common Questions
-          </div>
-          <h1 className="font-syne text-3xl md:text-5xl font-extrabold text-white mb-4">
-            Frequently Asked <span className="gradient-text">Questions</span>
+    <div className="pt-32 pb-24 min-h-screen relative overflow-hidden">
+      <div className="absolute top-0 right-1/4 h-80 w-80 rounded-full bg-brandAccent/7 blur-3xl pointer-events-none" />
+      <div className="container mx-auto px-6 lg:px-12 max-w-4xl relative z-10">
+        <div className="text-center mb-14">
+          <span className="section-label mb-5 inline-flex">FAQs</span>
+          <h1 className="mt-5 text-5xl md:text-6xl font-heading font-extrabold text-slate-950">
+            Frequently Asked <span className="text-gradient">Questions</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto">
-            Quick answers to the most common questions our clients ask.
-          </p>
+          <p className="mt-4 text-slate-600 text-lg">Answers to the most common legal and compliance questions.</p>
         </div>
-      </section>
 
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4 max-w-3xl">
-          {/* Search */}
-          <div className="relative mb-8">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search your question..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-gold/30 focus:border-gold focus:outline-none"
-            />
-          </div>
-
-          {/* Categories */}
-          <div className="flex flex-wrap gap-2 mb-8">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCat(cat.id)}
-                className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                  activeCat === cat.id
-                    ? 'bg-navy text-gold border border-gold'
-                    : 'bg-white text-navy border border-gold/30 hover:border-gold'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-
-          {/* FAQ List */}
-          <div className="space-y-3">
-            {filteredFaqs.map((faq, idx) => (
-              <div key={idx} className="bg-white rounded-xl border border-gold/20 overflow-hidden">
-                <button
-                  onClick={() => toggleItem(idx)}
-                  className="w-full flex justify-between items-center p-5 text-left hover:bg-gray-50 transition"
-                >
-                  <span className="font-semibold text-gray-900">{faq.q}</span>
-                  <ChevronDown
-                    size={20}
-                    className={`text-gold transition-transform ${openItems[idx] ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                {openItems[idx] && (
-                  <div className="px-5 pb-5 pt-0 border-t border-gray-100">
-                    <p className="text-gray-600 text-sm leading-relaxed">{faq.a}</p>
-                    <button
-                      onClick={() => sendWhatsAppMessage(CONTACT_INFO.secondaryPhone, `Hello, I have a question about: ${faq.q}`)}
-                      className="inline-flex items-center gap-2 mt-3 text-gold font-semibold text-sm"
-                    >
-                      Ask this on WhatsApp →
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {filteredFaqs.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-5xl mb-3">🔍</div>
-              <p className="text-xl font-medium text-navy">No results found</p>
-              <p className="text-gray-500 mt-2">Try a different search or <button onClick={() => sendWhatsAppMessage(CONTACT_INFO.secondaryPhone, 'Hello, I have a question')} className="text-gold font-bold">ask us on WhatsApp</button></p>
-            </div>
-          )}
-
-          {/* CTA */}
-          <div className="mt-10 rounded-2xl p-8 text-center bg-gradient-to-br from-navy to-navy-dark border border-gold/30">
-            <div className="text-4xl mb-3">💬</div>
-            <h2 className="font-syne text-xl font-bold text-white mb-2">Still have a question?</h2>
-            <p className="text-white/70 mb-5">Our team is available on WhatsApp 24/7 for urgent queries.</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={() => sendWhatsAppMessage(CONTACT_INFO.secondaryPhone, 'Hello, I have a question.')}
-                className="px-6 py-3 rounded-xl font-bold bg-green-500 text-white hover:bg-green-600 transition"
-              >
-                💬 WhatsApp Now
-              </button>
-              <a href={`tel:+91${CONTACT_INFO.primaryPhone}`} className="px-6 py-3 rounded-xl font-bold border-2 border-gold text-gold text-center hover:bg-gold/10 transition">
-                📞 Call: {CONTACT_INFO.primaryPhone}
-              </a>
-            </div>
-          </div>
+        {/* Search */}
+        <div className="relative mb-6 group">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none group-focus-within:text-brandPrimary transition-colors" />
+          <input
+            type="text" value={query} onChange={e => setQuery(e.target.value)}
+            placeholder="Search questions..."
+            className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 pl-10 pr-4 text-white placeholder-slate-500 backdrop-blur-sm focus:outline-none focus:border-brandPrimary transition-all"
+          />
         </div>
-      </section>
-    </>
-  )
-}
 
-export default FAQ
+        {/* Category pills */}
+        <div className="flex flex-wrap gap-2 mb-10 justify-center">
+          {CATS.map(c => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
+              className={`rounded-full px-4 py-2 text-sm font-medium border transition-all duration-300 ${c === cat ? 'bg-brandPrimary/15 border-brandPrimary/40 text-brandPrimary' : 'bg-white/[0.04] border-white/8 text-slate-400 hover:bg-white/[0.08] hover:text-white'}`}
+            >
+              {CAT_LABELS[c]}
+            </button>
+          ))}
+        </div>
+
+        {/* List */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 text-slate-500">
+            <p className="text-lg font-medium">No questions match your search.</p>
+            <button onClick={() => { setCat('All'); setQuery(''); }} className="mt-4 text-brandPrimary hover:underline text-sm">Clear filters</button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {filtered.map((faq, i) => <FAQItem key={i} question={faq.q} answer={faq.a} idx={i} />)}
+          </div>
+        )}
+
+        <p className="text-center text-slate-500 text-sm mt-12">
+          Still have questions?{' '}
+          <a href={`https://wa.me/91${FAQS[0] ? '9960586058' : ''}`} target="_blank" rel="noopener noreferrer" className="text-brandPrimary hover:underline">Ask us on WhatsApp →</a>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default FAQ;

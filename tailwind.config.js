@@ -6,59 +6,64 @@ export default {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        syne: ['Syne', 'sans-serif'],
-        dm: ['DM Sans', 'sans-serif'],
-      },
       colors: {
-        navy: {
-          DEFAULT: '#1E3A5F',
-          dark: '#0F2A4A',
-        },
-        gold: {
-          DEFAULT: '#C9A03D',
-          dark: '#A87E2A',
-        },
-        rose: {
-          DEFAULT: '#E11D48',
-          dark: '#B81A3E',
-        },
+        darkBg:          '#020617',
+        purpleBg:        '#0f172a',
+        brandPrimary:    '#ff5e6c',   // Coral Pink
+        brandSecondary:  '#feb300',   // Sleuthe Yellow
+        brandAccent:     '#ffaaab',   // Pink Leaf
+        brandSurface:    '#fff5d7',   // Ragin Beige
+      },
+      fontFamily: {
+        heading: ['Syne', 'sans-serif'],
+        body:    ['"DM Sans"', 'sans-serif'],
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'hero-gradient':
+          'radial-gradient(ellipse 80% 60% at 20% 0%, rgba(255,94,108,0.2), transparent 55%),' +
+          'radial-gradient(ellipse 60% 50% at 80% 100%, rgba(255,170,171,0.14), transparent 55%),' +
+          'linear-gradient(180deg, #020617 0%, #0a1628 60%, #020617 100%)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
       },
       animation: {
-        shimmer: 'shimmer 3s linear infinite',
-        'grid-move': 'gridMove 20s linear infinite',
-        slideUp: 'slideUp 0.4s ease-out',
-        marquee: 'marquee 30s linear infinite',
-        'marquee-reverse': 'marqueeReverse 30s linear infinite',
-        'pulse-ring': 'pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite',
+        'gradient':    'gradientShift 5s linear infinite',
+        'float':       'float 14s ease-in-out infinite',
+        'pulse-slow':  'pulse 3s ease-in-out infinite',
+        'fade-up':     'fadeUp 0.6s ease-out both',
+        'spin-slow':   'spinSlow 20s linear infinite',
+        'slide-down':  'slideInDown 0.4s ease-out both',
       },
       keyframes: {
-        shimmer: {
-          '0%': { backgroundPosition: '0% 50%' },
-          '100%': { backgroundPosition: '200% 50%' },
+        gradientShift: {
+          '0%,100%': { backgroundPosition: '0% 50%' },
+          '50%':     { backgroundPosition: '100% 50%' },
         },
-        gridMove: {
-          'from': { backgroundPosition: '0 0' },
-          'to': { backgroundPosition: '60px 60px' },
+        float: {
+          '0%':   { transform: 'translate(0,0) scale(1) rotate(0deg)',       opacity: '0.45' },
+          '33%':  { transform: 'translate(28px,-46px) scale(1.12) rotate(8deg)', opacity: '0.75' },
+          '66%':  { transform: 'translate(-18px,18px) scale(0.9) rotate(-6deg)', opacity: '0.55' },
+          '100%': { transform: 'translate(0,0) scale(1) rotate(0deg)',       opacity: '0.45' },
         },
-        slideUp: {
-          'from': { opacity: '0', transform: 'translateY(20px)' },
-          'to': { opacity: '1', transform: 'translateY(0)' },
+        fadeUp: {
+          from: { transform: 'translateY(24px)', opacity: '0' },
+          to:   { transform: 'translateY(0)',    opacity: '1' },
         },
-        marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-50%)' },
+        slideInDown: {
+          from: { transform: 'translateY(-16px)', opacity: '0' },
+          to:   { transform: 'translateY(0)',     opacity: '1' },
         },
-        marqueeReverse: {
-          '0%': { transform: 'translateX(-50%)' },
-          '100%': { transform: 'translateX(0%)' },
-        },
-        pulseRing: {
-          '0%': { transform: 'scale(0.8)', opacity: '0.8' },
-          '100%': { transform: 'scale(2)', opacity: '0' },
-        },
+        spinSlow: { to: { transform: 'rotate(360deg)' } },
+      },
+      boxShadow: {
+        'glow-primary': '0 0 30px rgba(255,94,108,0.4)',
+        'glow-accent':  '0 0 30px rgba(255,170,171,0.4)',
+        'glow-gold':    '0 0 30px rgba(254,179,0,0.4)',
       },
     },
   },
   plugins: [],
-}
+};
