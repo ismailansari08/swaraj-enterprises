@@ -22,11 +22,12 @@ const SpiderNetworkBackground = () => {
 
     const ctx = canvas.getContext('2d');
     
-    // THEME CONFIG: Matching website's new Coral Pink theme (#ff5e6c)
-    const THEME_RGB = '255, 255, 255'; /* White network */
-    const NUM = 85; // Optimization: Keep it reasonable for performance
-    const MAX_DIST = 160;
-    const MOUSE_DIST = 200;
+    // THEME CONFIG: Light Gray for White Theme
+    const THEME_RGB = '200, 200, 200'; 
+    const isMobile = window.innerWidth < 768;
+    const NUM = isMobile ? 12 : 25; // Drastically reduce on mobile for performance
+    const MAX_DIST = isMobile ? 120 : 200;
+    const MOUSE_DIST = isMobile ? 80 : 120;
 
     let mouse = { x: -999, y: -999, active: false };
 
@@ -45,8 +46,8 @@ const SpiderNetworkBackground = () => {
     const nodes = Array.from({ length: NUM }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
+      vx: (Math.random() - 0.5) * (isMobile ? 0.2 : 0.4),
+      vy: (Math.random() - 0.5) * (isMobile ? 0.2 : 0.4),
       r: Math.random() * 1.5 + 0.5,
       z: 0.2 + Math.random() * 0.8,
       pulse: Math.random() * Math.PI * 2,

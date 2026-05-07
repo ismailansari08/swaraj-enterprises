@@ -1,16 +1,17 @@
 import { useRef, useEffect, useState } from 'react';
-import { Users, ShieldCheck, Briefcase, Clock4, TrendingUp, Award } from 'lucide-react';
+import { Users, Briefcase, UserCheck, Layers, History, TrendingUp } from 'lucide-react';
+import useScrollReveal from '../../hooks/useScrollReveal';
 
 const statItems = [
-  { label: 'Happy Clients',    end: 5000,  suffix: '+', icon: Users,       color: '#ffaaab', glow: 'rgba(255,170,171,0.25)' },
-  { label: 'Cases Resolved',   end: 1200,  suffix: '+', icon: ShieldCheck,  color: '#ff5e6c', glow: 'rgba(255,94,108,0.25)' },
-  { label: 'Expert Advisors',  end: 50,    suffix: '+', icon: Briefcase,    color: '#feb300', glow: 'rgba(254,179,0,0.25)' },
-  { label: 'Services Offered', end: 29,    suffix: '+', icon: Award,        color: '#fff5d7', glow: 'rgba(255,245,215,0.25)' },
-  { label: 'Years Experience', end: 10,    suffix: '+', icon: Clock4,       color: '#ffb3c0', glow: 'rgba(255,179,192,0.25)' },
-  { label: 'Success Rate',     end: 99,    suffix: '%', icon: TrendingUp,   color: '#ff7b8a', glow: 'rgba(255,123,138,0.25)' },
+  { label: 'CLIENTS SERVED',    end: 5000,  suffix: '+', icon: Users },
+  { label: 'CASES RESOLVED',   end: 1200,  suffix: '+', icon: Briefcase },
+  { label: 'EXPERT ADVISORS',  end: 50,    suffix: '+', icon: UserCheck },
+  { label: 'SERVICE VERTICALS', end: 29,    suffix: '+', icon: Layers },
+  { label: 'YEARS LEGACY', end: 10,    suffix: '+', icon: History },
+  { label: 'SUCCESS RATE',     end: 99,    suffix: '%', icon: TrendingUp },
 ];
 
-const useCountUp = (end, duration = 2200, start = false) => {
+const useCountUp = (end, duration = 3000, start = false) => {
   const [count, setCount] = useState(0);
   useEffect(() => {
     if (!start) return;
@@ -18,7 +19,7 @@ const useCountUp = (end, duration = 2200, start = false) => {
     const step = (ts) => {
       if (!startTime) startTime = ts;
       const progress = Math.min((ts - startTime) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
+      const ease = 1 - Math.pow(1 - progress, 5);
       setCount(Math.floor(ease * end));
       if (progress < 1) requestAnimationFrame(step);
     };
@@ -27,84 +28,83 @@ const useCountUp = (end, duration = 2200, start = false) => {
   return count;
 };
 
-const StatCard = ({ item, started }) => {
-  const count = useCountUp(item.end, 2000, started);
+const StatCard = ({ item, started, idx }) => {
+  const count = useCountUp(item.end, 3000, started);
   const Icon = item.icon;
 
   return (
-    <div
-      className="group relative flex flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-white/8 bg-white/[0.04] p-8 text-center backdrop-blur-sm overflow-hidden transition-all duration-500 hover:-translate-y-2"
-      style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.28)' }}
+    <div 
+      className="flex flex-col items-center justify-center p-12 md:p-16 border-border-color bg-white hover:bg-secondary-bg/20 transition-all duration-700 group reveal-up relative overflow-hidden"
+      style={{ transitionDelay: `${idx * 150}ms` }}
     >
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[1.75rem]"
-        style={{ background: `radial-gradient(circle at center, ${item.glow} 0%, transparent 70%)` }}
-      />
-      <div
-        className="relative flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110"
-        style={{ background: `${item.color}18`, border: `1px solid ${item.color}30` }}
-      >
-        <Icon size={24} style={{ color: item.color }} />
+      {/* Ultra-Premium Glass Gradient Background */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 bg-[radial-gradient(circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),_rgba(230,0,18,0.03)_0%,_transparent_60%)] pointer-events-none" />
+      
+      {/* Shimmer Effect */}
+      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] ease-in-out bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+
+      {/* Background Icon Watermark */}
+      <div className="absolute -right-6 -bottom-6 opacity-[0.02] group-hover:opacity-[0.06] group-hover:text-primary-accent transition-all duration-1000 pointer-events-none transform group-hover:scale-150 group-hover:-rotate-12 transition-transform">
+        <Icon size={180} strokeWidth={1} />
       </div>
-      <div className="relative">
-        <p
-          className="text-5xl font-heading font-extrabold leading-none"
-          style={{
-            background: `linear-gradient(135deg, ${item.color}, white)`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          {count}{item.suffix}
-        </p>
+
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Animated Icon Container */}
+        <div className="relative mb-10">
+          <div className="absolute inset-0 bg-primary-accent blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-full" />
+          <div className="relative w-16 h-16 bg-secondary-bg rounded-2xl flex items-center justify-center text-primary-accent border border-border-color/50 group-hover:bg-primary-accent group-hover:text-white group-hover:border-primary-accent transition-all duration-500 transform group-hover:-translate-y-3 group-hover:rotate-[360deg] shadow-sm">
+            <Icon size={24} strokeWidth={2} />
+          </div>
+        </div>
+
+        <div className="relative mb-6">
+          <div className="flex items-baseline justify-center">
+            <span className="text-5xl md:text-7xl font-heading font-extrabold text-primary-text tracking-tighter group-hover:scale-105 transition-transform duration-700">
+              {count}
+            </span>
+            <span className="text-2xl md:text-3xl font-heading font-bold text-primary-accent ml-1 opacity-80 group-hover:opacity-100 transition-opacity">
+              {item.suffix}
+            </span>
+          </div>
+          {/* Animated Accent Line */}
+          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-1 bg-border-color group-hover:bg-primary-accent group-hover:w-full transition-all duration-700 rounded-full shadow-[0_0_15px_rgba(230,0,18,0)] group-hover:shadow-[0_0_15px_rgba(230,0,18,0.4)]" />
+        </div>
+
+        <div className="text-[10px] md:text-[11px] font-extrabold uppercase tracking-[0.4em] text-muted-text group-hover:text-primary-text transition-colors text-center px-4 leading-relaxed mt-6 relative">
+          <span className="relative z-10">{item.label}</span>
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-primary-accent/30 group-hover:w-1/2 transition-all duration-700" />
+        </div>
       </div>
-      <p className="text-xs font-semibold uppercase tracking-widest text-slate-300">
-        {item.label}
-      </p>
-      <div
-        className="absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"
-        style={{ background: `linear-gradient(90deg, ${item.color}, transparent)` }}
-      />
     </div>
   );
 };
 
 const Stats = () => {
+  useScrollReveal();
   const ref = useRef(null);
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setStarted(true); observer.disconnect(); } },
-      { threshold: 0.3 }
+      { threshold: 0.1 }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="py-24 relative overflow-hidden">
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-brandPrimary/30 to-transparent pointer-events-none" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-brandPrimary/6 blur-3xl pointer-events-none" />
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        <div className="text-center mb-14">
-          <span className="section-label">By the numbers</span>
-          <h2 className="mt-5 text-4xl md:text-5xl font-heading font-extrabold text-slate-100">
-            Trusted across <span className="text-gradient">Maharashtra</span>
-          </h2>
-          <p className="mt-3 text-slate-400 max-w-xl mx-auto">
-            Over a decade of reliable legal and business services — these numbers speak for themselves.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          {statItems.map((item) => (
-            <StatCard key={item.label} item={item} started={started} />
-          ))}
-        </div>
+    <section ref={ref} className="bg-white border-y border-border-color overflow-hidden relative">
+      {/* Background Micro-Texture */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#111 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} />
+
+      <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 divide-y sm:divide-y-0 lg:divide-x border-x border-border-color/30">
+        {statItems.map((item, idx) => (
+          <StatCard key={item.label} item={item} started={started} idx={idx} />
+        ))}
       </div>
     </section>
   );
 };
 
 export default Stats;
-

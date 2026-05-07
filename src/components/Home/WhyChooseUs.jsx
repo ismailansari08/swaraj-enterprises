@@ -1,111 +1,109 @@
-import { ShieldCheck, Zap, MessageSquare, Clock, ThumbsUp, Layers } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Zap, Globe, Award, TrendingUp, Users } from 'lucide-react';
+import useScrollReveal from '../../hooks/useScrollReveal';
 
-const REASONS = [
+const features = [
   {
     icon: ShieldCheck,
-    color: '#ff5e6c',
-    glow: 'rgba(255,94,108,0.2)',
-    title: 'Legal Accuracy',
-    desc: '100% error-free documentation with full legal backing on every submission.',
+    title: 'Absolute Integrity',
+    desc: 'Upholding the highest ethical standards in every legal framework and consultation process we execute.',
+    color: 'bg-blue-50 text-blue-600'
   },
   {
-    icon: Layers,
-    color: '#ffaaab',
-    glow: 'rgba(255,170,171,0.2)',
-    title: 'One-Stop Solution',
-    desc: '29+ services under one roof — save time, money, and multiple agency visits.',
-  },
-  {
-    icon: MessageSquare,
-    color: '#feb300',
-    glow: 'rgba(254,179,0,0.2)',
-    title: '24/7 WhatsApp Support',
-    desc: 'Emergency assistance anytime — even on weekends and public holidays.',
+    icon: Award,
+    title: 'Expert Precision',
+    desc: 'Our team delivers meticulous document verification and registration services with zero-margin error.',
+    color: 'bg-red-50 text-primary-accent'
   },
   {
     icon: Zap,
-    color: '#ff7b8a',
-    glow: 'rgba(255,123,138,0.2)',
-    title: 'Fast Turnaround',
-    desc: 'Most services completed in 3–7 days. Urgent cases handled on priority.',
+    title: 'Rapid Turnaround',
+    desc: 'Leveraging digital optimization to ensure your business compliance is handled with unmatched speed.',
+    color: 'bg-yellow-50 text-yellow-600'
   },
   {
-    icon: ThumbsUp,
-    color: '#fff5d7',
-    glow: 'rgba(255,245,215,0.25)',
-    title: '99% Approval Rate',
-    desc: 'Our expertise and thorough document checks ensure near-perfect approval outcomes.',
-  },
-  {
-    icon: Clock,
-    color: '#ffb3c0',
-    glow: 'rgba(255,179,192,0.2)',
-    title: '10+ Years Experience',
-    desc: 'A decade of serving 5,000+ businesses across Bhiwandi, Thane, and Maharashtra.',
-  },
+    icon: Users,
+    title: 'Client-Centric',
+    desc: 'Tailored legal strategies designed to protect and empower your specific business vision and goals.',
+    color: 'bg-green-50 text-green-600'
+  }
 ];
 
 const WhyChooseUs = () => {
+  useScrollReveal();
+
   return (
-    <section className="py-28 relative overflow-hidden">
-      <div className="absolute -left-32 top-1/4 h-72 w-72 rounded-full bg-brandPrimary/8 blur-3xl pointer-events-none" />
-      <div className="absolute -right-32 bottom-1/4 h-72 w-72 rounded-full bg-brandAccent/8 blur-3xl pointer-events-none" />
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <span className="section-label">Why Choose Us</span>
-          <h2 className="mt-5 text-4xl md:text-5xl font-heading font-extrabold text-slate-100 leading-tight">
-            A complete legal partner for <span className="text-gradient">every business stage</span>
-          </h2>
-          <p className="mt-4 text-slate-400 text-lg leading-relaxed">
-            From registrations and tax filings to property and labour compliance — fast, reliable, transparent.
-          </p>
-        </div>
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {REASONS.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={idx}
-                className="group relative flex flex-col gap-5 rounded-[1.75rem] border border-white/8 bg-white/[0.04] p-8 backdrop-blur-sm overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:bg-white/[0.07]"
-                style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}
-              >
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[1.75rem]"
-                  style={{
-                    background: `radial-gradient(circle at 30% 30%, ${item.glow} 0%, transparent 65%)`,
-                    boxShadow: `inset 0 0 0 1px ${item.color}28`,
-                  }}
-                />
-                <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
-                  style={{ background: `${item.color}15`, border: `1px solid ${item.color}30` }}
-                >
-                  <Icon size={24} style={{ color: item.color }} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-heading font-bold text-slate-100 mb-2 group-hover:text-gradient transition-all duration-300">
-                    {item.title}
-                  </h3>
-                  <p className="text-slate-400 leading-relaxed text-sm">{item.desc}</p>
-                </div>
-                <div
-                  className="h-px w-12 rounded-full transition-all duration-500 group-hover:w-full"
-                  style={{ background: `linear-gradient(90deg, ${item.color}, transparent)` }}
-                />
-              </div>
-            );
-          })}
-        </div>
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {['10+ Years in Bhiwandi', 'High Court Practice', 'Transparent Pricing', 'No Hidden Charges'].map((t, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-3.5 text-sm text-slate-200 font-medium backdrop-blur-sm"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-brandAccent" />
-              {t}
+    <section className="section-container bg-secondary-bg/20 border-y border-border-color relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-accent/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary-bg rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          
+          {/* Content */}
+          <div className="lg:col-span-5 reveal-left">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-[2px] bg-primary-accent" />
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.4em] text-primary-accent">
+                WHY SWARAJ
+              </span>
             </div>
-          ))}
+            <h2 className="mb-8 leading-tight">
+              A Legacy of <br />
+              <span className="text-primary-accent">Trust</span> & Excellence.
+            </h2>
+            <p className="text-secondary-text text-base md:text-lg leading-relaxed mb-10 max-w-xl">
+              Since 2015, Swaraj Enterprises has been the gold standard for legal 
+              consultancy in the region. We don't just provide services; we build 
+              legal fortresses for your business.
+            </p>
+
+            <div className="space-y-6">
+              {[
+                'Government Approved Agency',
+                'ISO 9001:2015 Certified Processes',
+                'Secure & Encrypted Data Handling',
+                'Senior Legal Experts (15+ Years Exp)'
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 group cursor-default">
+                  <div className="w-6 h-6 rounded-full bg-white border border-border-color flex items-center justify-center group-hover:border-primary-accent transition-colors shadow-sm">
+                    <CheckCircle2 size={14} className="text-primary-accent" />
+                  </div>
+                  <span className="text-sm font-extrabold text-primary-text tracking-tight uppercase group-hover:text-primary-accent transition-colors">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Feature Grid */}
+          <div className="lg:col-span-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+              {features.map((f, idx) => {
+                const Icon = f.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="group p-10 bg-white border border-border-color rounded-2xl md:rounded-premium hover:border-primary-accent/20 hover:shadow-2xl hover:shadow-primary-accent/5 transition-all duration-500 reveal-up"
+                    style={{ transitionDelay: `${idx * 150}ms` }}
+                  >
+                    <div className={`w-16 h-16 ${f.color} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 shadow-sm`}>
+                      <Icon size={32} />
+                    </div>
+                    <h3 className="text-xl font-heading font-extrabold text-primary-text mb-4 tracking-tight group-hover:text-primary-accent transition-colors">
+                      {f.title}
+                    </h3>
+                    <p className="text-sm md:text-base text-secondary-text leading-relaxed group-hover:text-primary-text transition-colors">
+                      {f.desc}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -113,4 +111,3 @@ const WhyChooseUs = () => {
 };
 
 export default WhyChooseUs;
-

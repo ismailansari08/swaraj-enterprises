@@ -9,7 +9,7 @@ export const CONTACT_INFO = {
   primaryName: "Ismail Ansari",
   secondaryPhone: "9960586058",
   secondaryName: "Suyog",
-  email: "contact@swarajenterprises.in",
+  email: "rihannpfft12@gmail.com",
   address: "465/7 Gala No 11, Sairaj Apartment, Opp. State Bank of India, Old Jakat Naka, Bhiwandi, District Thane, Maharashtra 421308",
   workingHours: "Mon-Sat: 9:00 AM - 7:00 PM",
   googleMapsEmbed: "https://maps.google.com/maps?q=465/7%20Gala%20No%2011%2C%20Sairaj%20Apartment%2C%20Opp.%20State%20Bank%20of%20India%2C%20Old%20Jakat%20Naka%2C%20Bhiwandi%2C%20District%20Thane%2C%20Maharashtra%20421308&t=&z=15&ie=UTF8&iwloc=&output=embed"

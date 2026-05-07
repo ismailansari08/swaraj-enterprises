@@ -11,8 +11,7 @@ const StarRow = ({ rating, size = 16 }) => (
         size={size}
         fill={i < rating ? 'currentColor' : 'none'}
         stroke="currentColor"
-        strokeWidth={2}
-        className={i < rating ? 'text-amber-400' : 'text-slate-600'}
+        className={i < rating ? 'text-primary-accent' : 'text-muted-text'}
       />
     ))}
   </div>
@@ -24,7 +23,6 @@ const Testimonials = () => {
   const intervalRef = useRef(null);
 
   const featured = TESTIMONIALS[active];
-  const secondary = TESTIMONIALS.filter((_, i) => i !== active).slice(0, 3);
   const avg = (TESTIMONIALS.reduce((s, t) => s + t.rating, 0) / TESTIMONIALS.length).toFixed(1);
 
   const go = useCallback((dir) => {
@@ -33,173 +31,135 @@ const Testimonials = () => {
     setTimeout(() => {
       setActive(i => (i + dir + TESTIMONIALS.length) % TESTIMONIALS.length);
       setAnimating(false);
-    }, 220);
+    }, 200);
   }, [animating]);
 
-  // Auto-rotate
   useEffect(() => {
-    intervalRef.current = setInterval(() => go(1), 5500);
+    intervalRef.current = setInterval(() => go(1), 6000);
     return () => clearInterval(intervalRef.current);
   }, [go]);
 
-  const resetInterval = (dir) => {
+  const manualGo = (dir) => {
     clearInterval(intervalRef.current);
     go(dir);
-    intervalRef.current = setInterval(() => go(1), 5500);
+    intervalRef.current = setInterval(() => go(1), 6000);
   };
 
   return (
-    <section className="py-28 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-1/3 h-80 w-80 rounded-full bg-brandPrimary/7 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-brandAccent/7 blur-3xl" />
-      </div>
-
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
+    <section className="section-container bg-white relative overflow-hidden">
+      <div className="relative z-10">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 md:mb-16 gap-8 text-center lg:text-left">
           <div className="max-w-2xl">
-            <span className="section-label">Client Reviews</span>
-            <h2 className="mt-5 text-4xl md:text-5xl font-heading font-extrabold text-slate-950 leading-tight">
-              5,000+ businesses{' '}
-              <span className="text-gradient">trust us</span>
+            <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
+              <div className="w-10 h-[2px] bg-primary-accent" />
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.4em] text-primary-accent">
+                CLIENT VERDICTS
+              </span>
+            </div>
+            <h2 className="mb-6">
+              A Legacy of <span className="text-primary-accent">Trust</span> <br className="hidden md:block" />
+              and Excellence.
             </h2>
-            <p className="mt-3 text-slate-600 text-lg">
-              Fast, accurate, and personal — here's what our clients say.
-            </p>
           </div>
 
-          {/* Summary badges */}
-          <div className="flex gap-4 flex-wrap">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-6 py-4 text-center backdrop-blur-sm">
-              <p className="text-4xl font-heading font-extrabold text-white">{TESTIMONIALS.length}+</p>
-              <p className="mt-1 text-xs uppercase tracking-widest text-slate-400">Reviews</p>
+          <div className="flex items-center justify-center gap-8">
+            <div className="text-center lg:text-right">
+              <div className="text-2xl md:text-3xl font-heading font-extrabold text-primary-text">{avg}/5.0</div>
+              <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-muted-text">
+                AVERAGE RATING
+              </div>
             </div>
-            <div className="rounded-2xl border border-amber-400/20 bg-amber-400/8 px-6 py-4 text-center backdrop-blur-sm">
-              <p className="text-4xl font-heading font-extrabold text-amber-400">{avg}</p>
-              <StarRow rating={Math.round(avg)} size={14} />
-              <p className="mt-1 text-xs uppercase tracking-widest text-slate-400">Avg rating</p>
+            <div className="w-[1px] h-12 bg-border-color" />
+            <div className="text-center lg:text-left">
+              <div className="text-2xl md:text-3xl font-heading font-extrabold text-primary-text">{TESTIMONIALS.length}+</div>
+              <div className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-muted-text">
+                CLIENT REVIEWS
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Main layout */}
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
-          {/* Featured card */}
-          <div
-            className="relative rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 backdrop-blur-md overflow-hidden transition-all duration-300"
-            style={{ boxShadow: '0 30px 90px rgba(0,0,0,0.35)', opacity: animating ? 0 : 1 }}
-          >
-            {/* Glow */}
-            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-brandAccent/12 to-transparent pointer-events-none" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+          {/* Main Featured Testimonial */}
+          <div className="lg:col-span-8">
+            <div className="h-full bg-white border border-border-color rounded-2xl md:rounded-premium p-8 md:p-16 flex flex-col relative group transition-all duration-500 hover:shadow-soft-hover">
+              <Quote className="absolute top-6 right-6 md:top-8 md:right-8 text-secondary-bg w-20 h-20 md:w-32 md:h-32 pointer-events-none group-hover:text-primary-accent/5 transition-colors" />
+              
+              <div className="mb-8">
+                <StarRow rating={featured.rating} size={20} />
+              </div>
 
-            <div className="relative z-10 flex flex-col h-full gap-6">
-              <StarRow rating={featured.rating} size={20} />
-
-              <Quote size={48} className="text-brandAccent/20" />
-
-              <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed flex-1">
+              <p className={`text-xl md:text-3xl font-heading font-extrabold text-primary-text leading-relaxed mb-12 transition-opacity duration-300 ${animating ? 'opacity-0' : 'opacity-100'}`}>
                 "{featured.text}"
               </p>
 
-              {/* Author */}
-              <div className="flex items-center justify-between flex-wrap gap-4 pt-6 border-t border-white/8">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brandPrimary to-brandAccent text-white font-heading font-bold text-lg">
+              <div className="mt-auto flex flex-col sm:flex-row sm:items-center justify-between gap-8 pt-10 border-t border-border-color">
+                <div className={`flex items-center gap-4 transition-all duration-300 ${animating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}>
+                  <div className="w-14 h-14 bg-secondary-bg border border-border-color rounded-xl flex items-center justify-center font-heading font-extrabold text-xl text-primary-accent">
                     {featured.name[0]}
                   </div>
                   <div>
-                    <p className="font-bold text-white">{featured.name}</p>
-                    <p className="text-sm text-slate-400">{featured.location}</p>
+                    <h4 className="font-extrabold text-primary-text text-lg tracking-tight">{featured.name}</h4>
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-muted-text">
+                      {featured.location}
+                    </p>
                   </div>
                 </div>
-                <span className="rounded-full border border-brandAccent/25 bg-brandAccent/12 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brandAccent">
-                  {featured.service}
-                </span>
-              </div>
 
-              {/* Controls */}
-              <div className="flex items-center gap-3 mt-2">
-                <button
-                  onClick={() => resetInterval(-1)}
-                  aria-label="Previous testimonial"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/6 text-white hover:bg-white/15 hover:border-brandPrimary/40 transition-all"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                {/* Dots */}
-                <div className="flex gap-2 flex-1 justify-center">
-                  {TESTIMONIALS.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { clearInterval(intervalRef.current); setActive(i); intervalRef.current = setInterval(() => go(1), 5500); }}
-                      aria-label={`Go to testimonial ${i + 1}`}
-                      className="rounded-full transition-all duration-300"
-                      style={{
-                        height: '6px',
-                        width: i === active ? '28px' : '6px',
-                        background: i === active ? 'var(--primary)' : 'rgba(255,255,255,0.2)',
-                      }}
-                    />
-                  ))}
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => manualGo(-1)}
+                    className="w-14 h-14 border border-border-color rounded-xl flex items-center justify-center text-primary-text hover:bg-primary-accent hover:border-primary-accent hover:text-white transition-all shadow-sm active:scale-90"
+                    aria-label="Previous Testimonial"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button
+                    onClick={() => manualGo(1)}
+                    className="w-14 h-14 border border-border-color rounded-xl flex items-center justify-center text-primary-text hover:bg-primary-accent hover:border-primary-accent hover:text-white transition-all shadow-sm active:scale-90"
+                    aria-label="Next Testimonial"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => resetInterval(1)}
-                  aria-label="Next testimonial"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/6 text-white hover:bg-white/15 hover:border-brandPrimary/40 transition-all"
-                >
-                  <ChevronRight size={18} />
-                </button>
               </div>
             </div>
           </div>
 
-          {/* Secondary stack */}
-          <div className="flex flex-col gap-4">
-            {secondary.map((t, idx) => (
-              <div
-                key={idx}
-                className="group flex flex-col gap-3 rounded-[1.5rem] border border-white/8 bg-white/[0.04] p-6 backdrop-blur-sm transition-all duration-400 hover:-translate-y-1 hover:bg-white/[0.07] hover:border-brandPrimary/20 cursor-pointer"
-                style={{ boxShadow: '0 12px 40px rgba(0,0,0,0.22)' }}
-                onClick={() => { clearInterval(intervalRef.current); setActive(TESTIMONIALS.indexOf(t)); }}
-              >
-                <StarRow rating={t.rating} size={14} />
-                <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">"{t.text}"</p>
-                <div className="flex items-center justify-between pt-3 border-t border-white/8">
-                  <div className="flex items-center gap-2">
-                    <div className="h-7 w-7 flex items-center justify-center rounded-full bg-gradient-to-br from-brandPrimary/60 to-brandAccent/60 text-white text-xs font-bold">
-                      {t.name[0]}
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-white">{t.name}</p>
-                      <p className="text-[10px] text-slate-500">{t.location}</p>
-                    </div>
-                  </div>
-                  <span className="text-[9px] font-bold uppercase tracking-widest rounded-full border border-brandAccent/20 bg-brandAccent/8 px-2 py-0.5 text-brandAccent">
-                    {t.service}
-                  </span>
-                </div>
+          {/* Secondary CTA */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            <div className="flex-1 bg-primary-accent rounded-2xl md:rounded-premium p-8 md:p-10 flex flex-col justify-between group overflow-hidden relative shadow-lg">
+              <div className="relative z-10">
+                <h3 className="text-2xl md:text-3xl font-heading font-extrabold text-white mb-4 leading-tight">
+                  Join 5,000+ Happy Clients
+                </h3>
+                <p className="text-white/80 text-sm md:text-base leading-relaxed mb-8">
+                  Experience the pinnacle of legal consultancy. Our strategic 
+                  advisory ensures your business is always protected.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
+              <Link
+                to="/contact"
+                className="relative z-10 w-full py-5 bg-white text-primary-accent font-extrabold text-[11px] uppercase tracking-widest rounded-xl text-center hover:bg-secondary-bg transition-all active:scale-95 shadow-md"
+              >
+                REQUEST CASE STUDY
+              </Link>
+              {/* Decorative circle */}
+              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+            </div>
 
-        {/* CTA Banner */}
-        <div className="mt-12 rounded-[2rem] border border-brandAccent/20 bg-gradient-to-r from-brandPrimary/8 via-brandAccent/6 to-transparent p-8 backdrop-blur-sm flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-brandAccent mb-2">Join 5,000+ happy clients</p>
-            <h3 className="text-2xl md:text-3xl font-heading font-extrabold text-slate-950">
-              Get the same fast, reliable support.
-            </h3>
-          </div>
-          <div className="flex flex-wrap gap-3 shrink-0">
-            <Link to="/contact" className="btn-premium inline-flex items-center gap-2 text-sm px-7 py-3.5">
-              Book Free Consult <ArrowRight size={16} />
-            </Link>
-            <Link to="/services" className="btn-ghost inline-flex items-center gap-2 text-sm px-7 py-3.5">
-              All Services
-            </Link>
+            <div className="bg-white border border-border-color rounded-2xl md:rounded-premium p-8 hover:shadow-soft transition-all group">
+              <h4 className="text-[10px] font-extrabold text-primary-text uppercase tracking-[0.3em] mb-4">
+                RECENT SUCCESS
+              </h4>
+              <p className="text-secondary-text text-sm leading-relaxed mb-6">
+                Successfully navigated complex property dispute for a major logistics 
+                enterprise in Thane district, ensuring zero business downtime.
+              </p>
+              <div className="flex items-center gap-2 text-primary-accent font-extrabold text-[10px] uppercase tracking-[0.2em] cursor-pointer hover:gap-4 transition-all">
+                LEARN MORE <ArrowRight size={16} />
+              </div>
+            </div>
           </div>
         </div>
       </div>

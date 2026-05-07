@@ -1,150 +1,187 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone } from 'lucide-react';
-import { CONTACT_INFO, NAV_LINKS } from '../../utils/data';
+import { Menu, X, ChevronRight, Phone, MessageSquare, Globe, Shield } from 'lucide-react';
+import { CONTACT_INFO } from '../../utils/data';
+
+export const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/documents", label: "Docs" },
+  { href: "/fees", label: "Fees" },
+  { href: "/blog", label: "Articles" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
+];
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 30);
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+      
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (window.scrollY / totalHeight) * 100;
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = NAV_LINKS.filter(l => l.label !== 'Book');
+  // Close menu on route change
+  useEffect(() => setIsOpen(false), [location]);
 
   return (
-    <nav
-      role="navigation"
-      aria-label="Main navigation"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled
-          ? 'py-3 border-b border-slate-200/70 shadow-[0_8px_48px_rgba(15,23,42,0.12)]'
-          : 'py-5'
-      }`}
-      style={{
-        background: isScrolled
-          ? 'rgba(2,6,23,0.95)'  /* darkBg glass */
-          : 'transparent',
-        backdropFilter: isScrolled ? 'blur(20px) saturate(180%)' : 'none',
-        WebkitBackdropFilter: isScrolled ? 'blur(20px) saturate(180%)' : 'none',
-      }}
-
-    >
-      <div className="container mx-auto px-6 lg:px-12 flex items-center justify-between">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center gap-3 group"
-          aria-label="Swaraj Enterprises – Home"
-        >
-          {/* Brand mark */}
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brandPrimary to-brandAccent shadow-[0_0_20px_rgba(255,94,108,0.45)] transition-transform group-hover:scale-110">
-            <span className="text-base font-heading font-black text-white leading-none">S</span>
-          </div>
-          <div className="hidden sm:block">
-            <p className="font-heading font-extrabold text-base leading-tight text-slate-100 group-hover:text-gradient transition-colors">
-              Swaraj Enterprises
-            </p>
-
-            <p className="text-[10px] uppercase tracking-widest text-brandAccent/70">& Legal Solutions</p>
-          </div>
-        </Link>
-
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
-          {navLinks.map(link => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className={`relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-250 ${
-                location.pathname === link.href
-                  ? 'text-brandPrimary bg-brandPrimary/10'
-                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100'
-              }`}
-            >
-              {link.label}
-              {location.pathname === link.href && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-3 rounded-full bg-brandPrimary" />
-              )}
-            </Link>
-          ))}
-        </div>
-
-        {/* CTA + call */}
-        <div className="hidden md:flex items-center gap-3">
-          <a
-            href={`tel:+91${CONTACT_INFO.primaryPhone}`}
-            className="flex items-center gap-1.5 text-sm text-slate-700 hover:text-brandPrimary transition-colors"
-            aria-label={`Call us at ${CONTACT_INFO.primaryPhone}`}
-          >
-            <Phone size={14} />
-            <span className="font-medium">{CONTACT_INFO.primaryPhone}</span>
-          </a>
-          <Link to="/appointment" className="btn-premium text-sm px-6 py-2.5 inline-flex items-center gap-2">
-            Book Appointment
-          </Link>
-        </div>
-
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden relative z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-950 backdrop-blur-sm transition-all hover:bg-slate-100"
-          onClick={() => setIsOpen(o => !o)}
-          aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={isOpen}
-          aria-controls="mobile-nav"
-        >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+    <>
+      {/* Dynamic Scroll Progress Bar */}
+      <div className="fixed top-0 left-0 w-full h-[3px] z-[200] pointer-events-none">
+        <div 
+          className="h-full bg-primary-accent shadow-[0_0_15px_rgba(230,0,18,0.5)] transition-all duration-150 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
       </div>
 
-      {/* Mobile drawer */}
-      <div
-        id="mobile-nav"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation"
-        className={`md:hidden absolute top-full left-0 right-0 overflow-hidden transition-all duration-400 ${
-          isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+      <header 
+        className={`fixed top-0 left-0 w-full z-[150] transition-all duration-700 ${
+          scrolled 
+            ? 'py-3 bg-white/80 backdrop-blur-xl border-b border-border-color/50 shadow-xl' 
+            : 'py-6 md:py-10 bg-transparent'
         }`}
-      style={{ background: 'rgba(2,6,23,0.96)', backdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-
       >
-        <div className="container mx-auto px-6 py-6 flex flex-col gap-2">
-          {navLinks.map((link, i) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                location.pathname === link.href
-                  ? 'bg-brandPrimary/15 text-brandPrimary border border-brandPrimary/20'
-                  : 'text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-transparent'
-              }`}
-              style={{ animationDelay: `${i * 40}ms` }}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          <hr className="hr-glow my-2" />
-
-          <a
-            href={`tel:+91${CONTACT_INFO.primaryPhone}`}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:text-brandPrimary transition-colors"
-          >
-            <Phone size={16} />
-            <span>+91 {CONTACT_INFO.primaryPhone}</span>
-          </a>
-
-          <Link to="/appointment" className="btn-premium mt-2 text-center text-sm py-3">
-            Book Free Appointment
+        <nav className="max-w-[1440px] mx-auto px-6 md:px-12 flex items-center justify-between">
+          
+          {/* Brand Logo */}
+          <Link to="/" className="group flex items-center gap-4 relative z-[160]">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary-accent blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-full" />
+              <div className="relative w-10 h-10 md:w-12 md:h-12 bg-primary-accent text-white flex items-center justify-center rounded-2xl group-hover:rotate-[360deg] transition-all duration-1000 shadow-lg">
+                <Shield size={24} strokeWidth={2.5} className="md:w-6 md:h-6 w-5 h-5" />
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <span className={`font-heading font-extrabold text-xl md:text-2xl leading-none tracking-tighter transition-colors ${scrolled ? 'text-primary-text' : 'text-primary-text'}`}>
+                SWARAJ
+              </span>
+              <span className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-primary-accent font-extrabold whitespace-nowrap">
+                ENTERPRISES
+              </span>
+            </div>
           </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-2">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.label}
+                to={link.href}
+                className={`px-5 py-2 text-[11px] font-extrabold uppercase tracking-[0.2em] transition-all duration-300 relative group overflow-hidden rounded-xl ${
+                  location.pathname === link.href ? 'text-primary-accent bg-primary-accent/5' : 'text-primary-text hover:text-primary-accent'
+                }`}
+              >
+                <span className="relative z-10">{link.label}</span>
+                <div className={`absolute bottom-0 left-0 w-full h-[2px] bg-primary-accent transition-transform duration-500 transform ${location.pathname === link.href ? 'translate-x-0' : '-translate-x-full group-hover:translate-x-0'}`} />
+              </Link>
+            ))}
+          </div>
+
+          {/* Action Area */}
+          <div className="flex items-center gap-4 md:gap-6">
+            <a 
+              href={`tel:+91${CONTACT_INFO.primaryPhone}`} 
+              className={`hidden sm:flex items-center gap-3 px-6 py-3 rounded-2xl border-2 border-border-color transition-all duration-500 group hover:border-primary-accent ${scrolled ? 'bg-white' : 'bg-white/50 backdrop-blur-md'}`}
+            >
+              <div className="w-8 h-8 rounded-xl bg-primary-accent/5 flex items-center justify-center text-primary-accent group-hover:bg-primary-accent group-hover:text-white transition-all">
+                <Phone size={14} />
+              </div>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary-text">GET HELP</span>
+            </a>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setIsOpen(!isOpen)}
+              className={`lg:hidden w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 relative z-[160] ${
+                isOpen ? 'bg-primary-accent text-white rotate-90' : 'bg-primary-accent/5 text-primary-text hover:bg-primary-accent/10'
+              }`}
+            >
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </nav>
+
+        {/* Mobile Navigation Drawer */}
+        <div className={`fixed inset-0 z-[155] lg:hidden transition-all duration-700 ease-out ${
+          isOpen ? 'visible opacity-100' : 'invisible opacity-0'
+        }`}>
+          {/* Overlay */}
+          <div 
+            className="absolute inset-0 bg-primary-text/40 backdrop-blur-md transition-opacity duration-700"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Drawer Content */}
+          <div className={`absolute top-0 right-0 w-[85%] sm:w-[70%] max-w-sm h-full bg-white shadow-2xl transition-transform duration-700 ease-out flex flex-col ${
+            isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
+             <div className="flex-1 pt-32 px-10 overflow-y-auto custom-scrollbar">
+                <div className="space-y-4 mb-16">
+                  {NAV_LINKS.map((link, idx) => (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      className="group flex items-center justify-between py-5 border-b border-border-color/50"
+                      style={{ transitionDelay: `${idx * 50}ms` }}
+                    >
+                      <span className={`text-2xl font-heading font-extrabold tracking-tight transition-colors ${
+                        location.pathname === link.href ? 'text-primary-accent' : 'text-primary-text group-hover:text-primary-accent'
+                      }`}>
+                        {link.label}
+                      </span>
+                      <ChevronRight size={20} className={`transition-all ${
+                        location.pathname === link.href ? 'text-primary-accent translate-x-1' : 'text-muted-text group-hover:text-primary-accent group-hover:translate-x-1'
+                      }`} />
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Quick Contacts */}
+                <div className="space-y-8">
+                   <p className="text-[10px] font-extrabold text-muted-text uppercase tracking-[0.4em]">CONNECT NOW</p>
+                   <div className="grid grid-cols-2 gap-4">
+                      <a href={`tel:+91${CONTACT_INFO.primaryPhone}`} className="p-6 bg-secondary-bg rounded-3xl flex flex-col items-center gap-4 group">
+                         <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary-accent group-hover:bg-primary-accent group-hover:text-white transition-all shadow-sm">
+                            <Phone size={20} />
+                         </div>
+                         <span className="text-[9px] font-extrabold text-primary-text uppercase tracking-widest">CALL</span>
+                      </a>
+                      <a href={`https://wa.me/91${CONTACT_INFO.primaryPhone}`} className="p-6 bg-secondary-bg rounded-3xl flex flex-col items-center gap-4 group">
+                         <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary-accent group-hover:bg-primary-accent group-hover:text-white transition-all shadow-sm">
+                            <MessageSquare size={20} />
+                         </div>
+                         <span className="text-[9px] font-extrabold text-primary-text uppercase tracking-widest">WHATSAPP</span>
+                      </a>
+                   </div>
+                </div>
+             </div>
+
+             {/* Footer Area */}
+             <div className="p-10 bg-secondary-bg border-t border-border-color flex items-center justify-between">
+                <div className="flex gap-4">
+                   {[Globe, Shield].map((Icon, i) => (
+                     <div key={i} className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-muted-text">
+                        <Icon size={14} />
+                     </div>
+                   ))}
+                </div>
+                <span className="text-[9px] font-extrabold text-muted-text uppercase tracking-widest">SWARAJ ENTERPRISES © 2024</span>
+             </div>
+          </div>
         </div>
-      </div>
-    </nav>
+      </header>
+    </>
   );
 };
 

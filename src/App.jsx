@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Layout/Navbar';
 import Footer from './components/Layout/Footer';
-import ScrollProgress from './components/Layout/ScrollProgress';
 import WhatsAppButton from './components/Common/WhatsAppButton';
 import ScrollToTop from './components/Common/ScrollToTop';
 import SpiderNetworkBackground from './components/Common/SpiderNetworkBackground';
@@ -15,14 +14,14 @@ import Appointment from './pages/Appointment';
 import FAQ from './pages/FAQ';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
+import ServiceLandingPage from './pages/ServiceLandingPage';
 
 function App() {
   return (
     <Router>
-      {/* Global UI chrome */}
-      <ScrollProgress />
-      <Navbar />
+      {/* Global background and chrome */}
       <SpiderNetworkBackground />
+      <Navbar />
 
       <main className="relative min-h-screen">
         <Routes>
@@ -34,6 +33,15 @@ function App() {
           <Route path="/faq"         element={<FAQ />} />
           <Route path="/blog"        element={<Blog />} />
           <Route path="/contact"     element={<Contact />} />
+          
+          {/* SEO Landing Pages */}
+          <Route path="/pan-card-service-bhiwandi" element={<ServiceLandingPage />} />
+          <Route path="/passport-service-bhiwandi" element={<ServiceLandingPage />} />
+          <Route path="/gst-registration-bhiwandi" element={<ServiceLandingPage />} />
+          <Route path="/food-licence-bhiwandi"     element={<ServiceLandingPage />} />
+          <Route path="/company-registration-bhiwandi" element={<ServiceLandingPage />} />
+          <Route path="/online-services-bhiwandi"  element={<ServiceLandingPage />} />
+          <Route path="/:slug" element={<ServiceLandingPage />} />
         </Routes>
       </main>
 

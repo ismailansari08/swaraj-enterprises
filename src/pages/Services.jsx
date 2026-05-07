@@ -1,214 +1,193 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Search, Filter, Check, ArrowRight, Clock } from 'lucide-react';
-import { ALL_SERVICES, getAllCategories } from '../utils/data';
-import { Link } from 'react-router-dom';
-import * as Icons from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ALL_SERVICES } from '../utils/data';
+import { Search, ArrowRight, ChevronRight, CheckCircle2, Shield, Clock, Zap } from 'lucide-react';
+import useSEO from '../hooks/useSEO';
+import SchemaMarkup from '../components/Common/SchemaMarkup';
+import useScrollReveal from '../hooks/useScrollReveal';
+import CategoryTabs from '../components/Common/CategoryTabs';
 
-const categoryColors = {
-  'GST & Tax':             { text: '#ff8d9d', bg: 'rgba(255,94,108,0.12)',  border: 'rgba(255,94,108,0.25)'  },
-  'Business Registrations':{ text: '#fbbf24', bg: 'rgba(254,179,0,0.12)',  border: 'rgba(254,179,0,0.25)'  },
-  'Property & Legal':      { text: '#ffb3c0', bg: 'rgba(255,170,171,0.12)',  border: 'rgba(255,170,171,0.25)'  },
-  'Government Documents':  { text: '#fff5d7', bg: 'rgba(255,245,215,0.12)', border: 'rgba(255,245,215,0.25)' },
-  'Licenses & Permits':    { text: '#ff7b8a', bg: 'rgba(255,123,138,0.12)', border: 'rgba(255,123,138,0.25)' },
-  'Logistics & Online':    { text: '#ff8d9d', bg: 'rgba(255,94,108,0.12)',  border: 'rgba(255,94,108,0.25)'  },
-};
-const defaultColor = categoryColors['GST & Tax'];
 
-const ServiceIcon = ({ name, color }) => {
-  const IconComponent = Icons[name] || Icons.CheckCircle;
-  return <IconComponent size={22} style={{ color }} />;
-};
-
-const ServiceCard = ({ service }) => {
-  const c = categoryColors[service.category] || defaultColor;
+const ServiceCard = ({ service, idx }) => {
   return (
-    <div
-      className="group relative flex flex-col gap-5 rounded-[1.75rem] border bg-white/[0.04] p-7 backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:bg-white/[0.07] overflow-hidden"
-      style={{ borderColor: 'rgba(255,255,255,0.08)', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}
+    <div 
+      className="premium-card group reveal-up relative overflow-hidden"
+      style={{ transitionDelay: `${idx * 100}ms` }}
     >
-      {/* Hover glow border */}
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[1.75rem]"
-        style={{ boxShadow: `inset 0 0 0 1px ${c.border}, 0 0 60px ${c.bg}` }}
-      />
-
-      {/* Top row */}
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className="flex h-13 w-13 items-center justify-center rounded-2xl shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
-          style={{ background: c.bg, border: `1px solid ${c.border}` }}
-        >
-          <ServiceIcon name={service.icon} color={c.text} />
-        </div>
-        <div className="text-right">
-          <p className="font-bold text-base" style={{ color: c.text }}>{service.price}</p>
-          <div className="flex items-center gap-1 mt-1 justify-end">
-            <Clock size={11} className="text-slate-500" />
-            <span className="text-[11px] text-slate-500">{service.processingTime}</span>
+      {/* Background Glow */}
+      <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary-accent/5 rounded-full blur-3xl group-hover:bg-primary-accent/10 transition-all duration-700" />
+      
+      <div className="relative z-10">
+        <div className="flex items-start justify-between mb-8">
+          <div className="w-14 h-14 bg-secondary-bg rounded-2xl flex items-center justify-center text-primary-accent group-hover:bg-primary-accent group-hover:text-white transition-all duration-500 shadow-sm transform group-hover:-translate-y-1">
+            <Shield size={28} />
           </div>
+          <span className="text-[10px] font-extrabold text-muted-text uppercase tracking-widest bg-secondary-bg px-4 py-2 rounded-full border border-border-color/50">
+            {service.category}
+          </span>
         </div>
-      </div>
 
-      {/* Title + desc */}
-      <div className="flex-1">
-        <h3 className="text-xl font-heading font-bold text-slate-950 mb-2 leading-tight group-hover:text-gradient transition-all duration-300">
+        <h3 className="text-xl md:text-2xl font-heading font-extrabold text-primary-text mb-4 leading-tight group-hover:text-primary-accent transition-colors">
           {service.name}
         </h3>
-        <p className="text-sm text-slate-600 leading-relaxed">{service.description}</p>
-      </div>
+        
+        <p className="text-secondary-text text-sm mb-8 line-clamp-2 leading-relaxed">
+          Professional assistance for {service.name} with 100% legal compliance and speed.
+        </p>
 
-      {/* Features */}
-      <div className="border-t border-white/8 pt-4">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-3">Key Features</p>
-        <ul className="grid grid-cols-2 gap-y-1.5 gap-x-2">
-          {service.features.map((f, i) => (
-            <li key={i} className="flex items-center gap-1.5 text-xs text-slate-600">
-              <Check size={11} style={{ color: c.text }} className="shrink-0" />
+        <ul className="space-y-4 mb-10">
+          {service.features?.slice(0, 3).map((f, i) => (
+            <li key={i} className="flex items-center gap-3 text-[11px] font-bold text-primary-text">
+              <CheckCircle2 size={14} className="text-primary-accent" />
               {f}
             </li>
           ))}
         </ul>
-      </div>
 
-      {/* Category badge */}
-      <span
-        className="self-start rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest"
-        style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
-      >
-        {service.category}
-      </span>
-
-      {/* CTAs */}
-      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/8">
-        <Link
-          to="/documents"
-          state={{ selectedServiceId: service.id }}
-          className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition-all"
-        >
-          View Docs
-        </Link>
-        <Link
-          to="/appointment"
-          state={{ selectedServiceId: service.id }}
-          className="flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold text-white transition-all hover:opacity-90 hover:shadow-[0_0_20px_rgba(255,94,108,0.3)]"
-          style={{ background: `linear-gradient(135deg, ${c.text}, rgba(255,94,108,0.7))` }}
-        >
-          Book Now <ArrowRight size={12} />
-        </Link>
+        <div className="pt-8 border-t border-border-color flex items-center justify-between">
+           <div className="flex flex-col">
+              <span className="text-[9px] font-extrabold text-muted-text uppercase tracking-widest mb-1">Processing Time</span>
+              <span className="text-xs font-bold text-primary-text flex items-center gap-1">
+                 <Clock size={12} className="text-primary-accent" /> {service.processingTime}
+              </span>
+           </div>
+           <button className="w-12 h-12 rounded-xl bg-secondary-bg flex items-center justify-center text-primary-text group-hover:bg-primary-accent group-hover:text-white transition-all transform group-hover:translate-x-2">
+              <ArrowRight size={20} />
+           </button>
+        </div>
       </div>
     </div>
   );
 };
 
 const Services = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const categories = ['All', ...getAllCategories()];
+  useScrollReveal();
+  useSEO({
+    title: 'Expert Legal & Government Services Bhiwandi | Swaraj Enterprises',
+    description: 'Explore our 29+ professional services including PAN Card, Passport, GST, Food Licence, and Company Registration. Premium legal consultancy in Bhiwandi.',
+    keywords: 'Legal Services Bhiwandi, PAN Card Office, GST Consultant Thane, Government Registration Services',
+  });
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('All');
 
-  const filtered = useMemo(() =>
-    ALL_SERVICES.filter(s => {
-      const q = searchTerm.toLowerCase();
-      return (
-        (s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)) &&
-        (selectedCategory === 'All' || s.category === selectedCategory)
-      );
-    }),
-    [searchTerm, selectedCategory]
-  );
+  const categories = ['All', ...new Set(ALL_SERVICES.map(s => s.category))];
+
+  const filtered = useMemo(() => {
+    return ALL_SERVICES.filter(s => {
+      const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) || 
+                           s.category.toLowerCase().includes(search.toLowerCase());
+      const matchesTab = activeTab === 'All' || s.category === activeTab;
+      return matchesSearch && matchesTab;
+    });
+  }, [search, activeTab]);
 
   return (
-    <div className="pt-32 pb-24 min-h-screen relative overflow-hidden">
-      {/* Ambient */}
-      <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-brandPrimary/7 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-brandAccent/7 blur-3xl pointer-events-none" />
-
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <span className="section-label mb-5 inline-flex">All 29+ Services</span>
-          <h1 className="mt-5 text-5xl md:text-6xl font-heading font-extrabold text-slate-950">
-            Our <span className="text-gradient">Services</span>
+    <div className="bg-white min-h-screen pt-24 md:pt-32">
+      <SchemaMarkup type="Service" data={{ "serviceType": "Legal & Government Consultancy" }} />
+      
+      {/* Header Section */}
+      <section className="bg-secondary-bg/50 border-b border-border-color relative overflow-hidden">
+        <div className="absolute inset-0 bg-texture opacity-[0.03]" />
+        <div className="section-container relative z-10 text-center">
+          <div className="inline-flex items-center gap-3 mb-8 reveal-up">
+            <div className="w-10 h-[2px] bg-primary-accent" />
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.4em] text-primary-accent">SERVICE DIRECTORY</span>
+            <div className="w-10 h-[2px] bg-primary-accent" />
+          </div>
+          <h1 className="mb-10 reveal-up" style={{ transitionDelay: '100ms' }}>
+            Precision <span className="text-primary-accent">Solutions.</span>
           </h1>
-          <p className="mt-4 text-slate-600 text-lg">
-            Comprehensive legal, registration, and compliance solutions — one trusted team for everything.
+          <p className="text-secondary-text text-base md:text-xl max-w-2xl mx-auto mb-16 leading-relaxed reveal-up" style={{ transitionDelay: '200ms' }}>
+            Browse our comprehensive suite of 29+ government and legal services 
+            designed for modern enterprises and individual needs.
           </p>
-        </div>
 
-        {/* Search + Filters */}
-        <div className="max-w-4xl mx-auto mb-12 space-y-5">
-          {/* Search */}
-          <div className="relative group">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none group-focus-within:text-brandPrimary transition-colors" />
-            <input
-              id="service-search"
-              type="text"
-              placeholder="Search services — 'GST Registration', 'PAN Card', 'Marriage Registration'..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-white/5 py-4 pl-11 pr-4 text-white placeholder-slate-500 backdrop-blur-md shadow-lg transition-all focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors text-xs font-medium"
-              >
-                Clear ×
+          {/* Search Bar */}
+          <div className="max-w-3xl mx-auto relative group reveal-up" style={{ transitionDelay: '300ms' }}>
+            <div className="absolute inset-0 bg-primary-accent/10 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 rounded-3xl" />
+            <div className="relative flex items-center bg-white border-2 border-border-color group-focus-within:border-primary-accent rounded-3xl p-2 pl-8 transition-all shadow-xl">
+              <Search className="text-muted-text group-focus-within:text-primary-accent transition-colors shrink-0" size={24} />
+              <input 
+                type="text" 
+                placeholder="Search for PAN, GST, Passport, etc..." 
+                className="w-full bg-transparent border-none focus:ring-0 text-lg font-medium text-primary-text placeholder:text-muted-text p-6"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <button className="hidden md:flex items-center gap-3 px-8 py-5 bg-primary-accent text-white rounded-2xl text-[10px] font-extrabold uppercase tracking-widest hover:bg-hover-red transition-all">
+                FIND SERVICE <ChevronRight size={14} />
               </button>
-            )}
+            </div>
           </div>
+        </div>
+      </section>
 
-          {/* Category pills */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {categories.map(cat => {
-              const isActive = selectedCategory === cat;
-              const c = categoryColors[cat] || defaultColor;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 border ${
-                    isActive ? 'text-white' : 'text-slate-400 bg-white/[0.04] border-white/8 hover:bg-white/[0.08] hover:text-white'
-                  }`}
-                  style={isActive ? { background: c.bg, borderColor: c.border, color: c.text } : {}}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
+      {/* Tabs */}
+      <CategoryTabs
+        categories={categories}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
-          {/* Results count */}
-          <p className="text-center text-sm text-slate-500">
-            Showing <span className="text-white font-semibold">{filtered.length}</span> of{' '}
-            <span className="text-white font-semibold">{ALL_SERVICES.length}</span> services
-          </p>
+
+      {/* Results Grid */}
+      <section className="section-container">
+        <div className="flex items-center justify-between mb-16">
+           <h2 className="text-3xl font-heading font-extrabold tracking-tight">
+             {activeTab} <span className="text-primary-accent">Services</span>
+           </h2>
+           <span className="text-[10px] font-extrabold text-muted-text uppercase tracking-widest bg-secondary-bg px-5 py-3 rounded-xl border border-border-color">
+             {filtered.length} RESULTS FOUND
+           </span>
         </div>
 
-        {/* Empty state */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-24 flex flex-col items-center gap-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-white/5">
-              <Filter size={36} className="text-slate-500" />
-            </div>
-            <h3 className="text-2xl font-heading font-bold text-white">No services found</h3>
-            <p className="text-slate-400">Try adjusting your search or filter.</p>
-            <button
-              onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}
-              className="btn-ghost px-6 py-2.5 text-sm mt-2"
-            >
-              Clear all filters
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
             {filtered.map((service, idx) => (
               <ServiceCard key={service.id} service={service} idx={idx} />
             ))}
           </div>
+        ) : (
+          <div className="py-32 text-center reveal-up">
+             <div className="w-24 h-24 bg-secondary-bg rounded-full flex items-center justify-center mx-auto mb-10">
+                <Search size={40} className="text-muted-text" />
+             </div>
+             <h3 className="text-2xl font-heading font-extrabold mb-4">No services found.</h3>
+             <p className="text-secondary-text mb-12">Try searching with different keywords or browse categories.</p>
+             <button 
+               onClick={() => {setSearch(''); setActiveTab('All');}}
+               className="btn-outline"
+             >
+               RESET FILTERS
+             </button>
+          </div>
         )}
-      </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="section-container pt-0">
+        <div className="bg-primary-accent rounded-[3rem] p-10 md:p-24 text-center relative overflow-hidden">
+           {/* Decorative circles */}
+           <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
+           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3" />
+           
+           <div className="relative z-10">
+              <h2 className="text-white mb-8">Can't find what you need?</h2>
+              <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-16 leading-relaxed">
+                Our senior partners handle complex legal documentations 
+                that may not be listed here. Contact us for a custom consultation.
+              </p>
+              <div className="flex flex-wrap justify-center gap-6">
+                 <button className="px-10 py-5 bg-white text-primary-accent rounded-2xl text-[11px] font-extrabold uppercase tracking-widest hover:bg-secondary-bg transition-all shadow-xl">
+                   GET CUSTOM QUOTE
+                 </button>
+                 <button className="px-10 py-5 bg-transparent border-2 border-white/30 text-white rounded-2xl text-[11px] font-extrabold uppercase tracking-widest hover:bg-white/10 transition-all">
+                   CHAT ON WHATSAPP
+                 </button>
+              </div>
+           </div>
+        </div>
+      </section>
     </div>
   );
 };
